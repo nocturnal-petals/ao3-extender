@@ -1,3 +1,4 @@
+import { defineBackground } from '#imports';
 import browser from 'webextension-polyfill';
 
 const setAdultCookie = async () => {

@@ -2,6 +2,7 @@ import { defineConfig } from 'wxt';
 
 export default defineConfig({
     srcDir: 'src',
+    imports: false,
     // webExt: {
     //     startUrls: ['https://archiveofourown.org/works/6092269'],
     // },

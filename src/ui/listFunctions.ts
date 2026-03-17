@@ -6,6 +6,8 @@ import { makeExtenderClass } from "./components/elements";
 import { createStatusButton } from "./components/buttons";
 import { updateBadgesVisualState } from "./components/badges";
 import { injectStats } from "./components/stats";
+import { getStatusText } from "@/utils/helpers";
+import { getWorkUpdateTime } from "@/content/metaData";
 
 
 export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector: string, exists: boolean) => {
@@ -39,7 +41,7 @@ export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector
         if (!updated) return;
         current = updated;
         updateButtonStates();
-        updateBadgesVisualState(updated, getWorkUpdateTime(blurb), exists, blurb);
+        updateBadgesVisualState(updated, getWorkUpdateTime(blurb), blurb);
     }
 
     const readBtn = createStatusButton(getStatusText(WorkStatus.read), 'read-btn', async () => {

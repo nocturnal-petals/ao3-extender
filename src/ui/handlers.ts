@@ -1,5 +1,6 @@
 import { WorksService } from "../db";
 import { Work, WorkStatus } from "../types/work";
+import {getLastReadChapter} from "../content/metaData";
 
 export const handleToggleStatus = async (work: Work, status: WorkStatus): Promise<Work> => {
     const newStatus = work.status === status ? WorkStatus.seen : status;

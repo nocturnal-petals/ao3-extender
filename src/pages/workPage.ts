@@ -3,7 +3,6 @@ import { Work, WorkStatus } from "../types/work";
 import { injectButtons } from "../ui/workFunctions";
 import { extractMetaData } from "../content/metaData";
 import logger from "../utils/logger"
-import { injectStats } from "@/ui/components/stats";
 
 const BUTTON_TARGETS = [
     'ul.work.navigation.actions',
@@ -26,10 +25,17 @@ export const handleWorkPage = async () => {
         ...metaData,
         reread: 0,
         status: WorkStatus.seen,
+        timestamp: Date.now(),
         kudos: false,
         downloaded: false,
         chapterHistory: [],
     };
+
+    if (work.status === WorkStatus.listOnly) {
+        work.status = WorkStatus.seen;
+        work.timestamp = Date.now();
+        await WorksService.edit(work.workId, { status: WorkStatus.seen, timestamp: Date.now() });
+    }
 
     await WorksService.upsert(work);
     injectButtons(work, currentChapter, chapterWordCount, BUTTON_TARGETS);

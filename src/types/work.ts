@@ -28,4 +28,5 @@ export enum WorkStatus {
     doNotRead = 'DO_NOT_READ',
     partiallyRead = 'PARTIALLY_READ',
     seen = 'SEEN',
+    listOnly = 'LIST_ONLY',
 }

@@ -20,6 +20,8 @@ export const getStatusText = (status: WorkStatus): string => {
             return '✓ Chapter Read'
         case WorkStatus.seen:
             return '👁 Seen';
+        case WorkStatus.listOnly:
+            return '';
         default:
             break;
     }

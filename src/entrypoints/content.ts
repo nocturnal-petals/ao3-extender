@@ -1,3 +1,4 @@
+import { defineContentScript } from '#imports';
 import { initDb } from '../db';
 import { handleListPage, handleUserDashboard, handleWorkPage } from '../pages';
 

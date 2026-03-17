@@ -14,14 +14,16 @@ export const getWorkIdFromUrl = (url: string): string | null => {
     return match ? match[1] : null;
 };
 
-export function getWorkUpdateTime(blurb: Element) {
-  const el = blurb.querySelector('p.datetime');
-  if (!el) return 0;
-  const t = new Date(el.textContent.trim()).getTime();
-  return (t && t > 0) ? t : 0;
-}
+export const getWorkUpdateTime = (context: Element | Document = document): number => {
+    const isDocument = context === document || context instanceof Document;
+    const raw = isDocument ? (document.querySelector('dd.status')
+        ?? document.querySelector('dd.published')) : context.querySelector('p.datetime');
+    if (!raw) return 0;
+    const t = new Date(raw.textContent?.trim()).getTime();
+    return t > 0 ? t : 0;
+};
 
-export const extractMetaData = (context: Document | Element = document): Omit<Work, 'status' | 'kudos' | 'downloaded' | 'reread'> | null => {
+export const extractMetaData = (context: Document | Element = document): Omit<Work, 'status' | 'kudos' | 'downloaded' | 'reread' | 'timestamp'> | null => {
   const isDocument = context === document || context instanceof Document;
   const workId = isDocument
     ? getWorkIdFromUrl(window.location.href)

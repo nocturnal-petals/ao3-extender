@@ -1,15 +1,14 @@
 import { Work } from "@/types";
 import { createStatDiv, makeExtenderClass } from "./elements";
-
-const noOp = { updateStats: (_: Work) => {} };
+import logger from "@/utils/logger";
 
 export const injectStats = (work: Work, context: Document | Element = document) => {
     const statsList = context.querySelector('dl.stats');
     if (!statsList) {
         logger.warn('Stats injection target not found!');
-        return noOp;
+        return;
     }
-    if (!work) return noOp;
+    if (!work) return;
 
     const modifiedList = wrapDtDdPairs(statsList.cloneNode(true)) as Element;
     const ref = modifiedList.childNodes.item(2);

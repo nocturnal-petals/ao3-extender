@@ -27,7 +27,8 @@ export const processBlurbs = async (blurbElements: Element[]) => {
             const newWork: Work = {
                 ...metaData,
                 reread: 0,
-                status: WorkStatus.seen,
+                status: WorkStatus.listOnly,
+                timestamp: 0,
                 kudos: false,
                 downloaded: false,
                 chapterHistory: [],

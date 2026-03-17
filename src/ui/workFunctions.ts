@@ -3,10 +3,11 @@ import { handleChapterRead, handleReread, handleToggleStatus } from "./handlers"
 import logger from "../utils/logger";
 import "../styles/style.css"
 import { injectStats } from "./components/stats";
-import {getLastReadChapter } from '../content/metaData';
+import {getLastReadChapter, getWorkUpdateTime } from '../content/metaData';
 import { makeExtenderClass } from "./components/elements";
 import { createStatusButton } from "./components/buttons";
 import { updateBadgesVisualState } from "./components/badges";
+import { getStatusText } from "@/utils/helpers";
 
 export const injectButtons = (initial: Work | null, currentChapter: number, chapterWordCount: number, parentLocators: string[]) => {
     if (!initial) return;
@@ -36,7 +37,7 @@ export const injectButtons = (initial: Work | null, currentChapter: number, chap
         if (!updated) return;
         current = updated;
         updateButtonStates();
-        updateBadgesVisualState(updated, 0, true)
+        updateBadgesVisualState(updated, getWorkUpdateTime());
     };
 
     targets.forEach(target => {
