@@ -1,0 +1,32 @@
+{
+  "name": "ao3-extender",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/content.js",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.5.0",
+    "@types/webextension-polyfill": "^0.12.5",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0",
+    "webextension-polyfill": "^0.12.0",
+    "wxt": "^0.20.19"
+  }
+}
