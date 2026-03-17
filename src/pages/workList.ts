@@ -1,6 +1,7 @@
 import { extractMetaData } from "@/content/metaData";
 import { WorksService } from "@/db";
 import { Work, WorkStatus } from "@/types";
+import { createBackToTopButton } from "@/ui/components/buttons";
 import { injectBlurbButtons } from "@/ui/listFunctions";
 import logger from "@/utils/logger";
 
@@ -8,7 +9,7 @@ const BUTTON_TARGET = 'div.header.module';
 
 export const handleListPage = async () => {
     logger.info('Handling list page!');
-
+    createBackToTopButton();
     const initialBlurbs = [...document.querySelectorAll('li.work.blurb, li.bookmark.blurb')];
     await processBlurbs(initialBlurbs);
 }

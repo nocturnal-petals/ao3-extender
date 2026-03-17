@@ -7,6 +7,7 @@
     --color-kudos: #ce2d6d;
     --color-seen: #f6964c;
     --color-shadow: rgba(0, 0, 0, 0.2);
+    --color-ao3-red: #980000;
 }
 
 button.ao3-extender-btn {
@@ -83,25 +84,25 @@ button.ao3-extender-btn:hover {
 }
 
 .ao3-extender-stats {
-  display: flex !important;
-  flex-flow: row wrap;
-  width: 100%;
+    display: flex !important;
+    flex-flow: row wrap;
+    width: 100%;
 }
 
 .ao3-extender-stats div {
-  align-items: flex-start;
-  margin-right: 1em;
-  margin-bottom: 0.25em;
-  display: flex !important;
-  flex-direction: column !important;
+    align-items: flex-start;
+    margin-right: 1em;
+    margin-bottom: 0.25em;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .ao3-extender-stats dd {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .ao3-extender-stats dt {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .ao3-extender-stats--kudosed {
@@ -127,4 +128,118 @@ a.ao3-extender-badge {
 .ao3-extender-badges-wrapper {
     display: flex;
     margin: 0.375em 0;
+}
+
+.ao3-extender-collapsed .header {
+  cursor: zoom-out;
+}
+
+.ao3-extender-collapsed:not(.ao3-extender-expanded) .header {
+  cursor: zoom-in;
+}
+
+.ao3-extender-collapsed:not(.ao3-extender-expanded) .ao3-extender-badges-wrapper,
+.ao3-extender-collapsed:not(.ao3-extender-expanded) dl.stats,
+.ao3-extender-collapsed:not(.ao3-extender-expanded) blockquote,
+.ao3-extender-collapsed:not(.ao3-extender-expanded) ul.tags,
+.ao3-extender-collapsed:not(.ao3-extender-expanded) p.datetime,
+.ao3-extender-collapsed:not(.ao3-extender-expanded) ul.series {
+    display: none !important;
+}
+
+.ao3-extender-collapse-info {
+    display: none !important;
+}
+
+.ao3-extender-collapsed:not(.ao3-extender-expanded) .ao3-extender-collapse-info {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8em;
+    color: var(--text-muted, #666);
+    margin-top: 2px;
+    flex-wrap: wrap;
+    margin: 0.2em 0 0 0.8em;
+}
+
+.ao3-extender-collapsed:not(.ao3-extender-expanded) .required-tags {
+  opacity: 0.5;
+  margin: 0.2em 0 0 0.8em;
+  transform: scale(0.72);
+  /* transform: scale(0.8); */
+  transform-origin: top left;
+}
+
+#ao3-extender-back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: none;
+    background: var(--color-ao3-red);
+    color: #fff;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    text-align: center;
+    line-height: 2.5rem;
+    font-size: 1.2rem;
+    text-decoration: none;
+    border-bottom: none !important;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+#ao3-extender-back-to-top:hover {
+    opacity: 1;
+}
+
+#ao3-extender-back-to-top.show {
+    display: block;
+}
+
+#ao3-extender-toast-bar {
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 9999; 
+    bottom: 0.5em;
+    left: 0;
+}
+
+#ao3-extender-toast {
+  visibility: hidden; 
+  min-width: 50%; 
+  background-color: var(--color-ao3-red);
+  color: #fff; 
+  text-align: center; 
+  border-radius: 5px; 
+  padding: 16px; 
+}
+
+#ao3-extender-toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
 }

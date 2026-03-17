@@ -3,6 +3,7 @@ import { Work, WorkStatus } from "../types/work";
 import { injectButtons } from "../ui/workFunctions";
 import { extractMetaData } from "../content/metaData";
 import logger from "../utils/logger"
+import { createBackToTopButton } from "@/ui/components/buttons";
 
 const BUTTON_TARGETS = [
     'ul.work.navigation.actions',
@@ -12,6 +13,7 @@ const BUTTON_TARGETS = [
 export const handleWorkPage = async () => {
     logger.info('Handling work page!');
 
+    createBackToTopButton();
     const metaData = extractMetaData();
     if (!metaData) return;
 
