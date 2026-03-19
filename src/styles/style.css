@@ -83,13 +83,15 @@ button.ao3-extender-btn:hover {
     display: none !important;
 }
 
-.ao3-extender-stats {
+.ao3-extender-stats,
+.ao3-extender-chapter-stats {
     display: flex !important;
     flex-flow: row wrap;
     width: 100%;
 }
 
-.ao3-extender-stats div {
+.ao3-extender-stats div,
+.ao3-extender-chapter-stats div {
     align-items: flex-start;
     margin-right: 1em;
     margin-bottom: 0.25em;
@@ -97,11 +99,13 @@ button.ao3-extender-btn:hover {
     flex-direction: column !important;
 }
 
-.ao3-extender-stats dd {
+.ao3-extender-stats dd,
+.ao3-extender-chapter-stats dd {
     margin: 0 !important;
 }
 
-.ao3-extender-stats dt {
+.ao3-extender-stats dt,
+.ao3-extender-chapter-stats dt {
     margin: 0 !important;
 }
 

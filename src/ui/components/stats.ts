@@ -1,6 +1,7 @@
 import { Work } from "@/types";
 import { createStatDiv, makeExtenderClass } from "./elements";
 import logger from "@/utils/logger";
+import { getChapterPublishDate, getChapterWordCount } from "@/content/metaData";
 
 export const injectStats = (work: Work, context: Document | Element = document) => {
     const statsList = context.querySelector('dl.stats');
@@ -21,8 +22,39 @@ export const injectStats = (work: Work, context: Document | Element = document) 
     statsList.replaceWith(modifiedList);
 }
 
-export const injectChapterStats = () => {
+export const injectChapterStats = async () => {
+    const chapterTitle = document.querySelector('div.chapter.preface.group h3.title');
+    const parentDiv = chapterTitle?.parentElement;
+    if (!parentDiv) {
+        logger.warn('Chapter stats injection target not found!');
+        return;
+    }
+    const statsWrapperLocator = makeExtenderClass('chapter-stats-wrapper');
+    if (parentDiv.querySelector(`.${statsWrapperLocator}`)) return;
+    const chapterWordCount = getChapterWordCount();
 
+    const totalTime = getChapterReadingTime(chapterWordCount);
+    if (totalTime <= 0) return;
+    const state = { showingRemaining: false };
+    const getCurrentTime = () => totalTime;
+
+    const newElements = [
+        createStatDiv('Word count:', chapterWordCount.toString(), 'stats--chapter-word-count'),
+        createReadingTimeStat(false, state, getCurrentTime, 'stats--chapter-reading-time'),
+        createFinishTimeStat(getCurrentTime, 'stats--chapter-finish-time'),
+        await makeChapterPublishDate()
+    ].filter(Boolean) as Element[];
+
+    const divWrapper = document.createElement('div');
+    divWrapper.classList.add('module');
+    divWrapper.classList.add(statsWrapperLocator);
+    const header = Object.assign(document.createElement('h3'), { textContent: 'Chapter stats:' });
+    const dl = Object.assign(document.createElement('dl'), { className: makeExtenderClass('chapter-stats') });
+    newElements.forEach(el => dl.append(el));
+
+    divWrapper.append(header);
+    divWrapper.append(dl);
+    parentDiv.append(divWrapper);
 }
 
 const getWordsRemaining = (work: Work) => {
@@ -36,6 +68,11 @@ const getReadingTime = (work: Work, isRemaining: boolean) => {
     return Math.round(wordsRemaining / (wordsPerMinute || 250));
 }
 
+const getChapterReadingTime = (wordCount: number) => {
+    const wordsPerMinute = 250;
+    return Math.round(wordCount / (wordsPerMinute || 250));
+}
+
 const formatTime = (readingTime: number) => {
     if (readingTime <= 0) return '';
     const hours = Math.floor(readingTime / 60);
@@ -43,6 +80,19 @@ const formatTime = (readingTime: number) => {
     const hoursText = hours >= 1 ? `${hours} hour${hours > 1 ? 's' : ''},` : '';
     const minutesText = minutes > 0 ? `${minutes} min${minutes > 1 ? 's' : ''}` : '';
     return `${hoursText} ${minutesText}`.trim();
+}
+
+const makeChapterPublishDate = async () => {
+    const chapterLink = document.querySelector('div.chapter.preface.group h3.title')?.getElementsByTagName('a')[0].getAttribute('href');
+    if (chapterLink) {
+        const workId = chapterLink.split('/')[2];
+        const publishDate = await getChapterPublishDate(workId, chapterLink);
+        if (!publishDate) return undefined;
+        const dd = document.createElement('dd');
+        const anchor = Object.assign(document.createElement('a'), { textContent: publishDate, href: `/works/${workId}/navigate` })
+        dd.append(anchor);
+        return createStatDiv('Published:', dd, 'stats--chapter-pub-date');
+    }
 }
 
 const makeReadingStats = (work: Work) => {
@@ -55,12 +105,12 @@ const makeReadingStats = (work: Work) => {
     const getCurrentTime = () => state.showingRemaining && hasProgress ? remainingTime : totalTime;
 
     return [
-        createReadingTimeStat(hasProgress, state, getCurrentTime),
-        createFinishTimeStat(getCurrentTime),
+        createReadingTimeStat(hasProgress, state, getCurrentTime, 'stats--reading-time'),
+        createFinishTimeStat(getCurrentTime, 'stats--finish-time'),
     ];
 };
 
-const createReadingTimeStat = (hasProgress: boolean, state: { showingRemaining: boolean }, getCurrentTime: () => number) => {
+const createReadingTimeStat = (hasProgress: boolean, state: { showingRemaining: boolean }, getCurrentTime: () => number, classItem: string) => {
     const dd = document.createElement('dd');
     const dt = document.createElement('dt');
     const div = document.createElement('div');
@@ -78,7 +128,7 @@ const createReadingTimeStat = (hasProgress: boolean, state: { showingRemaining: 
     };
 
     dd.append(span);
-    div.classList.add(makeExtenderClass('stats--reading-time'));
+    div.classList.add(makeExtenderClass(classItem));
     if (hasProgress) {
         div.style.cursor = 'pointer';
         div.addEventListener('click', () => { state.showingRemaining = !state.showingRemaining; update(); });
@@ -88,7 +138,7 @@ const createReadingTimeStat = (hasProgress: boolean, state: { showingRemaining: 
     return div;
 };
 
-const createFinishTimeStat = (getCurrentTime: () => number) => {
+const createFinishTimeStat = (getCurrentTime: () => number, classItem: string) => {
     const dd = document.createElement('dd');
     const span = Object.assign(document.createElement('span'), { tabIndex: 0 });
 
@@ -98,7 +148,7 @@ const createFinishTimeStat = (getCurrentTime: () => number) => {
     };
 
     dd.append(span);
-    const div = createStatDiv('Finish by:', dd, 'stats--finish-time');
+    const div = createStatDiv('Finish by:', dd, classItem);
     div.style.cursor = 'pointer';
     div.addEventListener('click', update);
     div.title = 'Click to update';

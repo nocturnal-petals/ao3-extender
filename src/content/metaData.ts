@@ -4,9 +4,12 @@ import logger from "../utils/logger";
 export const getLastReadChapter = (work: Work): number =>
   work.chapterHistory.at(-1)?.chapter ?? 0;
 
-export const getChapterWordCount = (chapterElement: Element): number => {
-  const text = chapterElement.querySelector('div.userstuff')?.textContent ?? '';
-  return text.trim() ? text.trim().split(/\s+/).length : 0;
+export const getChapterWordCount = (): number => {
+  // TODO: probably won't work on "Entire Work"
+    const text = document.querySelector('div#chapters div.userstuff')?.textContent 
+        ?? document.querySelector('div.userstuff')?.textContent 
+        ?? '';
+    return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
 export const getWorkIdFromUrl = (url: string): string | null => {
@@ -22,6 +25,16 @@ export const getWorkUpdateTime = (context: Element | Document = document): numbe
     const t = new Date(raw.textContent?.trim()).getTime();
     return t > 0 ? t : 0;
 };
+
+export const getChapterPublishDate = async (workId: string, chapterLink: string) => {
+    try {
+        const res = await fetch(`/works/${workId}/navigate`);
+        const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+        const link = doc.querySelector(`ol.chapter.index.group li a[href="${chapterLink}"]`);
+        const span = link?.parentElement?.querySelector('span');
+        if (span) return span.textContent.replace(/[()]/g, '');
+    } catch { /* skip on error */ }
+}
 
 export const extractMetaData = (context: Document | Element = document): Omit<Work, 'status' | 'kudos' | 'downloaded' | 'reread' | 'timestamp'> | null => {
   const isDocument = context === document || context instanceof Document;

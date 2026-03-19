@@ -38,10 +38,6 @@ export const handleDownload = async (work: Work) => {
     return await handleToggle(work, 'downloaded', true);
 }
 
-export const handleKudos = async (work: Work) => {
-    return await handleToggle(work, 'kudos', true);
-}
-
 const handleToggle = async (work: Work, field: 'kudos' | 'downloaded', value: boolean) => {
     await WorksService.edit(work.workId, { [field]: value });
     return { ...work, [field]: value };

@@ -29,8 +29,10 @@ export const injectButtons = (initial: Work | null, currentChapter: number, chap
         updateBadgesVisualState(updated, getWorkUpdateTime());
     };
 
+    const getCurrent = () => current;
+
     targets.forEach(target => {
-        createButtonsForTarget(current, target, currentChapter, chapterWordCount, updateAll);
+        createButtonsForTarget(getCurrent, target, currentChapter, chapterWordCount, updateAll);
     });
 
     injectStats(current);
@@ -38,34 +40,29 @@ export const injectButtons = (initial: Work | null, currentChapter: number, chap
     return updateAll;
 };
 
-const createButtonsForTarget = (current: Work, target: Element, currentChapter: number, chapterWordCount: number, updateAll: (work: Work) => void) => {
+const createButtonsForTarget = (getCurrent: () => Work, target: Element, currentChapter: number, chapterWordCount: number, updateAll: (work: Work) => void) => {
     const readBtn = createStatusButton(getStatusText(WorkStatus.read), 'read-btn', async () => {
-        if (!current) return;
-        const updated = await handleToggleStatus(current, WorkStatus.read);
+        const updated = await handleToggleStatus(getCurrent(), WorkStatus.read);
         updateAll(updated);
     });
 
     const chapterReadBtn = createStatusButton(getStatusText(WorkStatus.partiallyRead), 'chapter-read-btn', async () => {
-        if (!current) return;
-        const updated = await handleChapterRead(current, currentChapter, chapterWordCount);
+        const updated = await handleChapterRead(getCurrent(), currentChapter, chapterWordCount);
         updateAll(updated);
     });
 
     const doNotReadBtn = createStatusButton(getStatusText(WorkStatus.doNotRead), 'do-not-read-btn', async () => {
-        if (!current) return;
-        const updated = await handleToggleStatus(current, WorkStatus.doNotRead);
+        const updated = await handleToggleStatus(getCurrent(), WorkStatus.doNotRead);
         updateAll(updated);
     });
 
     const rereadBtn = createStatusButton('+ Re-read', 're-read-plus-btn', async () => {
-        if (!current) return;
-        const updated = await handleReread(current, true);
+        const updated = await handleReread(getCurrent(), true);
         updateAll(updated);
     });
 
     const removeRereadBtn = createStatusButton('- Re-read', 're-read-minus-btn', async () => {
-        if (!current) return;
-        const updated = await handleReread(current, false);
+        const updated = await handleReread(getCurrent(), false);
         updateAll(updated);
     });
 

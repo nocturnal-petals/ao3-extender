@@ -5,6 +5,7 @@ import { extractMetaData } from "../content/metaData";
 import logger from "../utils/logger"
 import { createBackToTopButton } from "@/ui/components/buttons";
 import { getLoggedInUsername } from "@/content/metaData";
+import { injectChapterStats } from "@/ui/components/stats";
 
 const BUTTON_TARGETS = [
     'ul.work.navigation.actions',
@@ -50,6 +51,8 @@ export const handleWorkPage = async () => {
 
     const updateAll = injectButtons(work, currentChapter, chapterWordCount, BUTTON_TARGETS);
     if (!updateAll) return;
+
+    await injectChapterStats();
 
     document.querySelector('#kudo_submit')?.addEventListener('click', async () => {
         if (work.kudos) return;
