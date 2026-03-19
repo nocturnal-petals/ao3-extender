@@ -9,22 +9,16 @@ export const showToast = (message: string, duration = 3000) => {
     if (!toastBar) {
         toastBar = document.createElement('div');
         toastBar.id = makeExtenderClass('toast-bar');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = makeExtenderClass('toast');
-        }
+        toast = document.createElement('div');
+        toast.id = makeExtenderClass('toast');
+        toastBar.appendChild(toast);
         document.body.appendChild(toastBar);
     }
 
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = makeExtenderClass('toast');
-    }
+    if (!toast) return;
 
     if (toastTimeout) clearTimeout(toastTimeout);
-
     toast.textContent = message;
     toast.classList.add('show');
-    toastBar.appendChild(toast);
     toastTimeout = setTimeout(() => toast!.classList.remove('show'), duration);
 };

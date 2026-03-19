@@ -76,3 +76,8 @@ export const extractMetaData = (context: Document | Element = document): Omit<Wo
     return null;
   }
 }
+
+export const getLoggedInUsername = () => {
+  return document.querySelector('#greeting a[href^="/users/"]')
+        ?.getAttribute('href')?.split('/users/')[1]?.split('/')[0];
+}
