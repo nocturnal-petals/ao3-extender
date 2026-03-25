@@ -1,17 +1,21 @@
 import { ChapterEntry, Work, WorkStatus } from "@/types";
 import { createIconLabel, getStatusIcon } from "@/ui/components/icons";
-import logger from "./logger";
+import { Colors } from "@/content/contstants";
 
 export const getStatusColorVar = (work: Work, dateUpdated?: number, lastEntry?: ChapterEntry): string => {
-    // if (work.hidden)                                return '--color-do-not-read';
-    // if (work.onHold)                                return '--color-on-hold';
     if (work.status === WorkStatus.read) {
-        if (dateUpdated && lastEntry && dateUpdated > lastEntry.timestamp) return '--color-updated';
-        return '--color-read';
+        if (dateUpdated && lastEntry && dateUpdated > lastEntry.timestamp) return Colors.UPDATED;
+        return Colors.READ;
     }
-    if (work.status === WorkStatus.partiallyRead)   return '--color-partial';
-    if (work.status === WorkStatus.reading)         return '--color-reading';
-    return '--color-seen';
+    if (work.status === WorkStatus.partiallyRead)   return Colors.PARTIAL;
+    if (work.status === WorkStatus.reading)         return Colors.READING;
+    return Colors.SEEN;
+};
+
+export const getBlurbColorVar = (work: Work, colorVar: string): string => {
+    if (work.hidden) return Colors.DO_NOT_READ;
+    if (work.onHold) return Colors.ON_HOLD;
+    return colorVar;
 };
 
 export const getStatusLabel = (status: WorkStatus): Element | undefined => {
@@ -23,7 +27,7 @@ export const getStatusLabel = (status: WorkStatus): Element | undefined => {
 
 const statusTextHelper = (status: WorkStatus) => {
     switch (status) {
-        case WorkStatus.read:           return'Read';
+        case WorkStatus.read:           return 'Read';
         case WorkStatus.partiallyRead:  return 'Chapter Read';
         case WorkStatus.seen:           return 'Seen';
         case WorkStatus.reading:        return 'Reading';

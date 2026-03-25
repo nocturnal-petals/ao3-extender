@@ -1,7 +1,8 @@
 import { ChapterEntry, Work, WorkStatus } from "@/types";
 import { makeExtenderClass } from "./elements";
-import { getStatusColorVar, getStatusLabel, hexToRgba } from "@/utils/helpers";
+import { getBlurbColorVar, getStatusColorVar, getStatusLabel, hexToRgba } from "@/utils/helpers";
 import { createIconLabel } from "./icons";
+import { Colors } from "@/content/contstants";
 
 export const updateBadgesVisualState = (work: Work, dateUpdated: number, context: Document | Element = document) => {
     const isDocument = context === document || context instanceof Document;
@@ -10,14 +11,15 @@ export const updateBadgesVisualState = (work: Work, dateUpdated: number, context
     if (!header) return;
 
     const lastEntry: ChapterEntry | undefined = work.chapterHistory.at(-1);
-    const colorVar = getStatusColorVar(work, dateUpdated, lastEntry);
+    const statusColorVar = getStatusColorVar(work, dateUpdated, lastEntry);
+    const blurbColorVar = getBlurbColorVar(work, statusColorVar);
 
     if (!isDocument) {
         context.removeAttribute('style');
         context.removeAttribute('data-extender-status');
         if (work.status !== WorkStatus.listOnly) {
-            makeBadgeStatusContainer(header, work, dateUpdated, lastEntry, colorVar, true);
-            applyBlurbBackground(context, colorVar);
+            makeBadgeStatusContainer(header, work, dateUpdated, lastEntry, statusColorVar, true);
+            applyBlurbBackground(context, blurbColorVar);
         }
         context.setAttribute(makeExtenderClass('data--status'), work.status.toLowerCase());
     } else {
@@ -27,7 +29,7 @@ export const updateBadgesVisualState = (work: Work, dateUpdated: number, context
             existing.remove();
         }
         const statusEl = document.createElement('dd');
-        const wrapper = makeBadgeStatusContainer(statusEl, work, dateUpdated, lastEntry, colorVar, false);
+        const wrapper = makeBadgeStatusContainer(statusEl, work, dateUpdated, lastEntry, statusColorVar, false);
         const statusTitle = Object.assign(document.createElement('dt'), { textContent: 'Status:' });
         header.prepend(statusTitle, wrapper);
     }
@@ -47,7 +49,7 @@ const makeBadgeStatusContainer = (parent: Element, work: Work, dateUpdated: numb
         if (child) wrapper.appendChild(child);
     }
     if (work.status === WorkStatus.read && isUpdated) {
-        wrapper.appendChild(createBadge('New Chapter!', '--color-updated'));
+        wrapper.appendChild(createBadge('New Chapter!', Colors.UPDATED));
     } else if (work.status === WorkStatus.partiallyRead && lastEntry) {
         const label = `Stopped at: Ch ${lastEntry.chapter}`;
         const timestamp = new Date(lastEntry.timestamp).toLocaleDateString();
@@ -76,28 +78,28 @@ export const makeStatusBadge = (work: Work) => {
 
 export const makeDoNotReadBadge = (hidden: boolean) => {
     const label = createIconLabel('ban', 'Marked as Hidden');
-    const badge = createBadge(label, '--color-do-not-read') as HTMLElement;
+    const badge = createBadge(label, Colors.DO_NOT_READ) as HTMLElement;
     if (!hidden) badge.classList.add('invisible');
     return badge;
 };
 
 export const makeOnHoldBadge = (hidden: boolean) => {
     const label = createIconLabel('pause', 'Marked On Hold');
-    const badge = createBadge(label, '--color-on-hold') as HTMLElement;
+    const badge = createBadge(label, Colors.ON_HOLD) as HTMLElement;
     if (!hidden) badge.classList.add('invisible');
     return badge;
 };
 
 export const makeKudosedBadge = (kudosed: boolean) => {
     const label = createIconLabel('heart', 'Kudosed');
-    const badge = createBadge(label, '--color-kudos') as HTMLElement;
+    const badge = createBadge(label, Colors.KUDOS) as HTMLElement;
     if (!kudosed) badge.classList.add('invisible');
     return badge;
 };
 
 export const makeDownloadedBadge = (downloaded: boolean) => {
     const label = createIconLabel('download', 'Downloaded');
-    const badge = createBadge(label, '--color-downloaded') as HTMLElement;
+    const badge = createBadge(label, Colors.DOWNLOADED) as HTMLElement;
     if (!downloaded) badge.classList.add('invisible');
     return badge;
 };

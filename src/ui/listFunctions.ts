@@ -2,7 +2,7 @@ import { Work, WorkStatus } from "@/types";
 import { WorksService } from "@/db";
 import logger from "../utils/logger";
 import { makeExtenderClass } from "./components/elements";
-import { createDoNotReadButton, createDownloadButton, createReadButton } from "./components/buttons";
+import { createDoNotReadButton, createDownloadButton, createOnHoldButton, createReadButton } from "./components/buttons";
 import { updateBadgesVisualState } from "./components/badges";
 import { injectStats } from "./components/stats";
 import { getWorkUpdateTime } from "@/content/metaData";
@@ -35,6 +35,7 @@ export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector
     const updateButtonStates = () => {
         readBtn.querySelector('button')?.classList.toggle('active', current?.status === WorkStatus.read);
         doNotReadBtn.querySelector('button')?.classList.toggle('active', current?.hidden);
+        onHoldButton.querySelector('button')?.classList.toggle('active', current?.onHold);
         downloadBtn.querySelector('button')?.classList.toggle('active', current?.downloaded === true);
     };
 
@@ -50,8 +51,9 @@ export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector
     const readBtn = createReadButton(getCurrent, updateAll, ensurePersisted);
     const doNotReadBtn = createDoNotReadButton(getCurrent, updateAll, ensurePersisted);
     const downloadBtn = createDownloadButton(getCurrent, updateAll, ensurePersisted);
+    const onHoldButton = createOnHoldButton(getCurrent, updateAll, ensurePersisted);
 
-    container.append(readBtn, doNotReadBtn, downloadBtn);
+    container.append(readBtn, doNotReadBtn, onHoldButton, downloadBtn);
     blurb.append(container);
     injectStats(current, blurb);
 
@@ -59,7 +61,7 @@ export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector
 };
 
 export const collapseBlurb = (blurb: Element, work: Work) => {
-    if (work.status !== WorkStatus.read || work.hidden === false) {
+    if (!(work.status === WorkStatus.read || work.hidden)) {
         blurb.classList.remove(makeExtenderClass('collapsed'));
         return;
     }
