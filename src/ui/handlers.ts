@@ -38,7 +38,15 @@ export const handleDownload = async (work: Work) => {
     return await handleToggle(work, 'downloaded', true);
 }
 
-const handleToggle = async (work: Work, field: 'kudos' | 'downloaded', value: boolean) => {
+export const handleDoNotRead = async (work: Work) => {
+    return await handleToggle(work, 'hidden', !work.hidden);
+}
+
+export const handleOnHold = async (work: Work) => {
+    return await handleToggle(work, 'onHold', !work.onHold);
+}
+
+const handleToggle = async (work: Work, field: 'kudos' | 'downloaded' | 'hidden' | 'onHold', value: boolean) => {
     await WorksService.edit(work.workId, { [field]: value });
     return { ...work, [field]: value };
 };

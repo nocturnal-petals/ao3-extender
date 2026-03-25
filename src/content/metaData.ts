@@ -74,6 +74,8 @@ export const extractMetaData = (context: Document | Element = document): Omit<Wo
     return {
       workId,
       chapterHistory: [],
+      onHold: false,
+      hidden: false,
       meta: {
         title: title,
         author: author,

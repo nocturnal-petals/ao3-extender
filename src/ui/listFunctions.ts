@@ -1,12 +1,10 @@
 import { Work, WorkStatus } from "@/types";
-import { handleDownload, handleToggleStatus } from "./handlers";
 import { WorksService } from "@/db";
 import logger from "../utils/logger";
 import { makeExtenderClass } from "./components/elements";
-import { createStatusButton } from "./components/buttons";
+import { createDoNotReadButton, createDownloadButton, createReadButton } from "./components/buttons";
 import { updateBadgesVisualState } from "./components/badges";
 import { injectStats } from "./components/stats";
-import { getStatusText } from "@/utils/helpers";
 import { getWorkUpdateTime } from "@/content/metaData";
 
 
@@ -17,9 +15,11 @@ export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector
         if (!persisted) {
             current.timestamp = Date.now();
             await WorksService.add(current);
-            persisted = true;
         }
+        return true;
     };
+
+    const getCurrent = () => current;
 
     let current = initial;
     const target = blurb.querySelector(targetSelector);
@@ -34,48 +34,32 @@ export const injectBlurbButtons = (initial: Work, blurb: Element, targetSelector
 
     const updateButtonStates = () => {
         readBtn.querySelector('button')?.classList.toggle('active', current?.status === WorkStatus.read);
-        doNotReadBtn.querySelector('button')?.classList.toggle('active', current?.status === WorkStatus.doNotRead);
+        doNotReadBtn.querySelector('button')?.classList.toggle('active', current?.hidden);
         downloadBtn.querySelector('button')?.classList.toggle('active', current?.downloaded === true);
     };
 
-    const updateAll = (updated: Work) => {
+    const updateAll = (updated: Work, newPersisted: boolean) => {
         if (!updated) return;
+        persisted = newPersisted;
         current = updated;
         updateButtonStates();
         updateBadgesVisualState(updated, getWorkUpdateTime(blurb), blurb);
         collapseBlurb(blurb, updated);
     }
 
-    const readBtn = createStatusButton(getStatusText(WorkStatus.read), 'read-btn', async () => {
-        if (!current) return;
-        await ensurePersisted();
-        current = await handleToggleStatus(current, WorkStatus.read);
-        updateAll(current);
-    });
-
-    const doNotReadBtn = createStatusButton(getStatusText(WorkStatus.doNotRead), 'do-not-read-btn', async () => {
-        if (!current) return;
-        await ensurePersisted();
-        current = await handleToggleStatus(current, WorkStatus.doNotRead);
-        updateAll(current);
-    });
-
-    const downloadBtn = createStatusButton('↓ Download', 'download-btn', async () => {
-        if (!current) return;
-        await ensurePersisted();
-        current = await handleDownload(current);
-        updateAll(current);
-    });
+    const readBtn = createReadButton(getCurrent, updateAll, ensurePersisted);
+    const doNotReadBtn = createDoNotReadButton(getCurrent, updateAll, ensurePersisted);
+    const downloadBtn = createDownloadButton(getCurrent, updateAll, ensurePersisted);
 
     container.append(readBtn, doNotReadBtn, downloadBtn);
     blurb.append(container);
     injectStats(current, blurb);
 
-    updateAll(current);
+    updateAll(current, persisted);
 };
 
 export const collapseBlurb = (blurb: Element, work: Work) => {
-    if (![WorkStatus.doNotRead, WorkStatus.read].includes(work.status)) {
+    if (work.status !== WorkStatus.read || work.hidden === false) {
         blurb.classList.remove(makeExtenderClass('collapsed'));
         return;
     }
@@ -122,8 +106,8 @@ const getCollapseLabel = (work: Work): string => {
     if (work.status === WorkStatus.partiallyRead && lastEntry) {
         return `Last read ${date} — Ch ${lastEntry.chapter}`;
     }
-    if (work.status === WorkStatus.doNotRead) {
-        return 'Marked: Do Not Read';
+    if (work.hidden) {
+        return 'Marked: Hidden';
     }
     return '';
 };

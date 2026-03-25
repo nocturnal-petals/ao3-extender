@@ -1,11 +1,13 @@
 :root {
     --color-read: #28a745;
     --color-updated: #ffc107;
-    --color-partial: #17a2b8;
+    --color-partial: #6271fc;
     --color-do-not-read: #a50b1a;
     --color-downloaded: #6f42c1;
     --color-kudos: #ce2d6d;
-    --color-seen: #f6964c;
+    --color-seen: #0bb3a8;
+    --color-reading: #08a0ff;
+    --color-on-hold: #fd7e14;
     --color-shadow: rgba(0, 0, 0, 0.2);
     --color-ao3-red: #980000;
 }
@@ -64,6 +66,11 @@ button.ao3-extender-btn:hover {
 
 .ao3-extender-do-not-read {
     color: var(--color-do-not-read);
+}
+
+.active.ao3-extender-on-hold-btn {
+    background: var(--color-on-hold) !important;
+    border-color: var(--color-on-hold);
 }
 
 .active.ao3-extender-download-btn {

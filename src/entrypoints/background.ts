@@ -17,6 +17,6 @@ const setAdultCookie = async () => {
 };
 
 export default defineBackground(() => {
-    browser.runtime.onInstalled.addListener(setAdultCookie);
-    browser.runtime.onStartup.addListener(setAdultCookie);
+    // browser.runtime.onInstalled.addListener(setAdultCookie);
+    // browser.runtime.onStartup.addListener(setAdultCookie);
 });
