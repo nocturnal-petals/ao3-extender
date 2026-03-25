@@ -1,6 +1,8 @@
 import { ChapterEntry, Work, WorkStatus } from "@/types";
 import { makeExtenderClass } from "./elements";
-import { getStatusColorVar, getStatusText, hexToRgba } from "@/utils/helpers";
+import { getBlurbColorVar, getStatusColorVar, getStatusLabel, hexToRgba } from "@/utils/helpers";
+import { createIconLabel } from "./icons";
+import { Colors } from "@/content/contstants";
 
 export const updateBadgesVisualState = (work: Work, dateUpdated: number, context: Document | Element = document) => {
     const isDocument = context === document || context instanceof Document;
@@ -9,14 +11,15 @@ export const updateBadgesVisualState = (work: Work, dateUpdated: number, context
     if (!header) return;
 
     const lastEntry: ChapterEntry | undefined = work.chapterHistory.at(-1);
-    const colorVar = getStatusColorVar(work, dateUpdated, lastEntry);
+    const statusColorVar = getStatusColorVar(work, dateUpdated, lastEntry);
+    const blurbColorVar = getBlurbColorVar(work, statusColorVar);
 
     if (!isDocument) {
         context.removeAttribute('style');
         context.removeAttribute('data-extender-status');
         if (work.status !== WorkStatus.listOnly) {
-            makeBadgeStatusContainer(header, work, dateUpdated, lastEntry, colorVar, true);
-            applyBlurbBackground(context, colorVar);
+            makeBadgeStatusContainer(header, work, dateUpdated, lastEntry, statusColorVar, true);
+            applyBlurbBackground(context, blurbColorVar);
         }
         context.setAttribute(makeExtenderClass('data--status'), work.status.toLowerCase());
     } else {
@@ -26,7 +29,7 @@ export const updateBadgesVisualState = (work: Work, dateUpdated: number, context
             existing.remove();
         }
         const statusEl = document.createElement('dd');
-        const wrapper = makeBadgeStatusContainer(statusEl, work, dateUpdated, lastEntry, colorVar, false);
+        const wrapper = makeBadgeStatusContainer(statusEl, work, dateUpdated, lastEntry, statusColorVar, false);
         const statusTitle = Object.assign(document.createElement('dt'), { textContent: 'Status:' });
         header.prepend(statusTitle, wrapper);
     }
@@ -35,15 +38,18 @@ export const updateBadgesVisualState = (work: Work, dateUpdated: number, context
 const makeBadgeStatusContainer = (parent: Element, work: Work, dateUpdated: number, lastEntry: ChapterEntry | undefined, colorVar: string, isBlurb: boolean) => {
     const wrapper = createBadgeWrapper(parent, isBlurb);
 
+    wrapper.appendChild(makeDoNotReadBadge(work.hidden));
+    wrapper.appendChild(makeOnHoldBadge(work.onHold));
     wrapper.appendChild(makeDownloadedBadge(work.downloaded));
     wrapper.appendChild(makeKudosedBadge(work.kudos));
 
     const isUpdated = lastEntry && dateUpdated > lastEntry.timestamp;
     if (work.status !== WorkStatus.partiallyRead) {
-        wrapper.appendChild(makeStatusBadge(work));
+        const child = makeStatusBadge(work);
+        if (child) wrapper.appendChild(child);
     }
     if (work.status === WorkStatus.read && isUpdated) {
-        wrapper.appendChild(createBadge('New Chapter!', '--color-updated'));
+        wrapper.appendChild(createBadge('New Chapter!', Colors.UPDATED));
     } else if (work.status === WorkStatus.partiallyRead && lastEntry) {
         const label = `Stopped at: Ch ${lastEntry.chapter}`;
         const timestamp = new Date(lastEntry.timestamp).toLocaleDateString();
@@ -64,27 +70,49 @@ const applyBlurbBackground = (blurb: Element, colorVar: string) => {
 
 export const makeStatusBadge = (work: Work) => {
     const colorVar = getStatusColorVar(work);
-    const text = getStatusText(work.status);
+    const text = getStatusLabel(work.status);
+    if (!text) return;
     const badge = createBadge(text, colorVar);
     return badge;
 };
 
+export const makeDoNotReadBadge = (hidden: boolean) => {
+    const label = createIconLabel('ban', 'Marked as Hidden');
+    const badge = createBadge(label, Colors.DO_NOT_READ) as HTMLElement;
+    if (!hidden) badge.classList.add('invisible');
+    return badge;
+};
+
+export const makeOnHoldBadge = (hidden: boolean) => {
+    const label = createIconLabel('pause', 'Marked On Hold');
+    const badge = createBadge(label, Colors.ON_HOLD) as HTMLElement;
+    if (!hidden) badge.classList.add('invisible');
+    return badge;
+};
+
 export const makeKudosedBadge = (kudosed: boolean) => {
-    const badge = createBadge('♥ Kudosed', '--color-kudos') as HTMLElement;
+    const label = createIconLabel('heart', 'Kudosed');
+    const badge = createBadge(label, Colors.KUDOS) as HTMLElement;
     if (!kudosed) badge.classList.add('invisible');
     return badge;
 };
 
 export const makeDownloadedBadge = (downloaded: boolean) => {
-    const badge = createBadge('Downloaded', '--color-downloaded') as HTMLElement;
+    const label = createIconLabel('download', 'Downloaded');
+    const badge = createBadge(label, Colors.DOWNLOADED) as HTMLElement;
     if (!downloaded) badge.classList.add('invisible');
     return badge;
 };
 
-export const createBadge = (text: string, colorVar: string, href?: string): Element => {
-    const el = document.createElement(href ? 'a' : 'span') as HTMLElement;
-    el.className = makeExtenderClass('badge');
-    el.textContent = text;
+export const createBadge = (content: string | Element, colorVar: string, href?: string): Element => {
+    let el;
+     if (typeof content === 'string') {
+        el = document.createElement(href ? 'a' : 'span') as HTMLElement;
+        el.textContent = content;
+    } else {
+        el = content as HTMLElement;
+    }
+    el.className = makeExtenderClass('badge');  
     el.style.setProperty('--badge-color', `var(${colorVar})`);
     if (href && el instanceof HTMLAnchorElement) {
         el.href = href;

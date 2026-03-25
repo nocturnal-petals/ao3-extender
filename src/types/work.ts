@@ -5,13 +5,22 @@ export interface ChapterEntry {
     url: string;
 }
 
+export interface RereadSession {
+    startedAt: number;
+    chapterHistory: ChapterEntry[];
+    lastReadChapter: number;
+}
+
 export interface Work {
     workId: string,
     status: WorkStatus,
     kudos: boolean,
     downloaded: boolean,
+    onHold: boolean,
+    hidden: boolean,
     reread: number,
     chapterHistory: ChapterEntry[];
+    currentReread?: RereadSession;
     timestamp: number,
     meta: {
         wordCount: number,
@@ -24,9 +33,9 @@ export interface Work {
 }
 
 export enum WorkStatus {
-    read = 'READ',
-    doNotRead = 'DO_NOT_READ',
-    partiallyRead = 'PARTIALLY_READ',
-    seen = 'SEEN',
     listOnly = 'LIST_ONLY',
+    seen = 'SEEN',
+    reading = 'READING',
+    read = 'READ',
+    partiallyRead = 'PARTIALLY_READ',
 }
